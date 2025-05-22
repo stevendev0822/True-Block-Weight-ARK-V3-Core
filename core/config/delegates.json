@@ -1,0 +1,120 @@
+{
+    "delegates": [
+        {
+            "name": "delegate1",
+            "static": {
+                "atomic": 100000000,
+                "network": "ark_devnet",
+                "start_block": 0
+            },
+            "delegate": {
+                "message": "Thank you for voting delegate1",
+                "voter_share": 90,
+                "voter_cap": 0,
+                "voter_min": 0,
+                "whitelist": false,
+                "whitelist_address": [],
+                "blacklist": false,
+                "blacklist_address": []
+            },
+            "payment": {
+                "interval": 211,
+                "multi": true,
+                "passphrase": "passphrase1",
+                "secondphrase": null,
+                "delegate_fee": [
+                    10
+                ],
+                "delegate_fee_address": [
+                    "addr1"
+                ]
+            },
+            "exchange": {
+                "exchange": false,
+                "convert_from": [
+                    "ark",
+                    "ark"
+                ],
+                "convert_address": [
+                    "addr1",
+                    "addr2"
+                ],
+                "convert_to": [
+                    "usdc",
+                    "xrp"
+                ],
+                "address_to": [
+                    "usdc_addr1",
+                    "xrp_addr2"
+                ],
+                "network_to": [
+                    "eth",
+                    "xrp"
+                ],
+                "provider": [
+                    "provider",
+                    "provider"
+                ]
+            },
+            "other": {
+                "custom": false,
+                "manual_pay": false,
+                "update_share": false
+            },
+            "donate": {
+                "donate": false,
+                "donate_address": "addr1",
+                "donate_percent": 0
+            }
+        },
+        {
+            "name": "delegate2",
+            "static": {
+                "atomic": 100000000,
+                "network": "ark_devnet",
+                "start_block": 0
+            },
+            "delegate": {
+                "message": "Thank you for voting delegate2",
+                "voter_share": 90,
+                "voter_cap": 0,
+                "voter_min": 0,
+                "whitelist": false,
+                "whitelist_address": [],
+                "blacklist": false,
+                "blacklist_address": []
+            },
+            "payment": {
+                "interval": 211,
+                "multi": true,
+                "passphrase": "passphrase2",
+                "secondphrase": null,
+                "delegate_fee": [
+                    20
+                ],
+                "delegate_fee_address": [
+                    "addr1"
+                ]
+            },
+            "exchange": {
+                "exchange": false,
+                "convert_from": [],
+                "convert_address": [],
+                "convert_to": [],
+                "address_to": [],
+                "network_to": [],
+                "provider": []
+            },
+            "other": {
+                "custom": false,
+                "manual_pay": false,
+                "update_share": false
+            },
+            "donate": {
+                "donate": false,
+                "donate_address": "",
+                "donate_percent": 0
+            }
+        }
+    ]
+}
