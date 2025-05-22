@@ -1,12 +1,19 @@
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import os
 
 class Sql:
-    def __init__(self):
+    def __init__(self, delegate_name = None):
         self.home = str(Path.home())
-        self.data_path = self.home+'/core3-tbw/core/data/tbw.db'
+        self.delegate_name = delegate_name
 
+        if delegate_name:
+            data_dir = f"{self.home}/True-Block-Weight-ARK-V3-Core/data/{delegate_name}"
+            os.makedirs(data_dir, exist_ok=True)
+            self.data_path = f"{data_dir}/tbw.db"
+        else:
+            self.data_path = f"{self.home}/True-Block-Weight-ARK-V3-Core/core/data/tbw.db"
         
     def open_connection(self):
         self.connection = sqlite3.connect(self.data_path)

@@ -27,7 +27,7 @@ class TestDelegateManager(unittest.TestCase):
         self.logger.debug(f"Created temporary directory: {self.temp_dir.name}")
         
         # Create the directory structure
-        os.makedirs(os.path.join(self.temp_dir.name, 'core3-tbw/core/config'), exist_ok=True)
+        os.makedirs(os.path.join(self.temp_dir.name, 'True-Block-Weight-ARK-V3-Core/core/config'), exist_ok=True)
         self.logger.debug("Created directory structure")
         
         # Create a test delegates.json file
@@ -72,7 +72,7 @@ class TestDelegateManager(unittest.TestCase):
             ]
         }
         
-        self.delegates_file = os.path.join(self.temp_dir.name, 'core3-tbw/core/config/delegates.json')
+        self.delegates_file = os.path.join(self.temp_dir.name, 'True-Block-Weight-ARK-V3-Core/core/config/delegates.json')
         with open(self.delegates_file, 'w') as f:
             json.dump(self.test_delegates, f, indent=4)
         self.logger.debug(f"Created test delegates.json at {self.delegates_file}")

@@ -7,7 +7,7 @@ class Network:
     def __init__(self, network):
         self.home = str(Path.home())
         self.network = network
-        env_path = self.home + "/core3-tbw/core/network/" + self.network
+        env_path = self.home + "/True-Block-Weight-ARK-V3-Core/core/network/" + self.network
 
         config = SafeConfigParser(os.environ)
         config.read(env_path)
