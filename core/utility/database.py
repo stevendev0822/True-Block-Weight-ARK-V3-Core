@@ -1,5 +1,5 @@
 import psycopg
-
+import logging
 
 class Database:
     def __init__(self, config, network):
@@ -8,6 +8,8 @@ class Database:
         self.username = config.username
         self.password = network.password
         self.delegate = config.delegate
+
+        self.logger = logging.getLogger(f'database_{self.delegate}')
         
         self.open_connection()
         self.get_publickey()
@@ -15,32 +17,46 @@ class Database:
        
     
     def open_connection(self):
-        self.connection = psycopg.connect(
-            dbname = self.database,
-            user = self.username,
-            password= self.password,
-            host=self.database_host,
-            port='5432')
-            
-        self.cursor=self.connection.cursor()
-    
+        try:
+            self.connection = psycopg.connect(
+                dbname = self.database,
+                user = self.username,
+                password= self.password,
+                host=self.database_host,
+                port='5432')
+                
+            self.cursor=self.connection.cursor()
+            self.logger.debug(f"Database connection opened for delegate: {self.delegate}")        
      
+        except Exception as e:
+            self.logger.error(f"Error opening database connection for delegate: {self.delegate}")
+            raise
+
     def close_connection(self):
-        self.cursor.close()
-        self.connection.close() 
+        try:
+            self.cursor.close()
+            self.connection.close()
+            self.logger.debug(f"Database connection closed for delegate: {self.delegate}")
+        except Exception as e:
+            self.logger.error(f"Error closing database connection: {str(e)}")
     
     
     def get_publickey(self):
         try:
             universe = self.cursor.execute(f"""SELECT "sender_public_key", "asset" FROM transactions WHERE 
             "type" = 2""").fetchall()
+            
+            for i in universe:
+                for k,v in i[1].items():
+                    if k == 'delegate' and v['username']==self.delegate:
+                        self.publickey = i[0]
+                        self.logger.info(f"Found public key for delegate {self.delegate}: {self.publickey[:8]}...")
+                        return
+                        
+            self.logger.warning(f"Public key not found for delegate: {self.delegate}")
         except Exception as e:
-            print(e)
-    
-        for i in universe:
-            for k,v in i[1].items():
-                if k == 'delegate' and v['username']==self.delegate:
-                    self.publickey = i[0]
+            self.logger.error(f"Error retrieving public key: {str(e)}")
+            raise
     
 # BLOCK OPERATIONS    
     def get_all_blocks(self):

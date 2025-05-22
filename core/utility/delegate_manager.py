@@ -5,17 +5,16 @@ from pathlib import Path
 
 class DelegateManager:
     def __init__(self, config):
-        # Set up logging
         self.logger = logging.getLogger('delegate_manager')
         self.logger.info("Initializing DelegateManager")
         
-        self.home = str(Path.home())
+        self.home = str(Path.home()) 
         self.config = config
         self.delegates = {}
-        self.load_delegates()
+        self.load_delegates()     
         
     def load_delegates(self):
-        delegates_file = f"{self.home}/core3-tbw/core/config/delegates.json"
+        delegates_file = f"{self.home}/True-Block-Weight-ARK-V3-Core/core/config/delegates.json"
         self.logger.info(f"Loading delegates from {delegates_file}")
         
         if os.path.exists(delegates_file):

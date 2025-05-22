@@ -1,22 +1,24 @@
 {
-    "apps": [{
-        "name": "tbw",
-	"version": "1.0.1",
-        "script": "tbw.py",
-        "instances": 1,
-        "exec_mode": "fork",
-        "exec_interpreter": "python3",
-        "log_date_format": "YYYY-MM-DD HH:mm Z",
-	"interpreter_args": "-u"
-    },
-    {
-        "name": "pay",
-	"version": "1.0.1",
-        "script": "pay.py",
-        "instances": 1,
-        "exec_mode": "fork",
-        "exec_interpreter": "python3",
-        "log_date_format": "YYYY-MM-DD HH:mm Z",
-	"interpreter_args": "-u"
-    },]
+    "apps": [
+        {
+            "name": "tbw",
+            "version": "1.0.1",
+            "script": "tbw.py",
+            "instances": 1,
+            "exec_mode": "fork",
+            "exec_interpreter": "python3",
+            "log_date_format": "YYYY-MM-DD HH:mm Z",
+            "interpreter_args": "-u"
+        },
+        {
+            "name": "pay",
+            "version": "1.0.1",
+            "script": "pay.py",
+            "instances": 1,
+            "exec_mode": "fork",
+            "exec_interpreter": "python3",
+            "log_date_format": "YYYY-MM-DD HH:mm Z",
+            "interpreter_args": "-u"
+        }
+    ]
 }
