@@ -1,5 +1,5 @@
 from crypto.identity.address import address_from_public_key
-
+import logging
 
 class Allocate:
     def __init__(self, database, config, sql):
@@ -8,15 +8,24 @@ class Allocate:
         self.sql = sql
         self.atomic = self.config.atomic
 
+        # Set up logging
+        self.logger = logging.getLogger(f'allocate_{config.username}')
+        self.logger.info(f"Initializing Allocate module for delegate: {config.username}")       
+
         
     def get_vote_transactions(self, timestamp):
+        """Get vote and unvote transactions for the delegate"""
+        self.logger.debug(f"Getting vote transactions since timestamp: {timestamp}")
         self.database.open_connection()
         vote, unvote = self.database.get_votes(timestamp)
         self.database.close_connection()
+        self.logger.debug(f"Retrieved {len(vote)} votes and {len(unvote)} unvotes")
         return vote, unvote    
 
     
     def create_voter_roll(self, v, u):
+        """Create a voter roll from vote and unvote transactions"""
+        self.logger.debug("Creating voter roll")
         # create dictionary of unvotes
         unvotes = {i[0]:i[1] for i in u}
 
@@ -39,16 +48,20 @@ class Allocate:
         self.sql.open_connection()
         self.sql.store_voters(roll, self.config.voter_share)
         self.sql.close_connection()
+        self.logger.info(f"Created voter roll with {len(roll)} voters")
 
         return roll
     
        
-    def get_voter_balance(self, block, voter_roll):
+    def get_voter_balance(self, block, voter_roll):        
+        """Get the balance for each voter at the given block timestamp"""
+        self.logger.debug(f"Getting voter balances for block at height {block[4]}")
         vote_balance = {}
         block_timestamp = block[1]
 
         self.database.open_connection()
         self.sql.open_connection()
+
         for i in voter_roll:
             voter_balance_checkpoint = self.sql.get_voter_balance_checkpoint(i[0]).fetchall()
             if voter_balance_checkpoint:
@@ -57,10 +70,13 @@ class Allocate:
                 # Get checkpoint balance and add it to the transactions
                 chkpoint_ts = voter_balance_checkpoint[0][2]
                 chkpoint_balance = voter_balance_checkpoint[0][1]
+                self.logger.debug(f"Voter {i[0]} has checkpoint balance {chkpoint_balance} at timestamp {chkpoint_ts}")
             else:
                 # New voter, recheck all previous transactions
                 chkpoint_ts = 0
                 chkpoint_balance = 0
+                self.logger.debug(f"New voter {i[0]}, starting with zero balance")
+
             debit = self.database.get_sum_outbound(i[1], block_timestamp, chkpoint_ts)
             credit = self.database.get_sum_inbound(i[0], block_timestamp, chkpoint_ts)
             block_reward = self.database.get_sum_block_rewards(i[1], block_timestamp, chkpoint_ts)
@@ -73,10 +89,13 @@ class Allocate:
         self.database.close_connection()
         self.sql.close_connection()
 
+        self.logger.info(f"Retrieved balances for {len(vote_balance)} voters")
         return vote_balance
 
         
     def block_allocations(self, block, voters):
+        """Calculate reward allocations for a block"""
+        self.logger.info(f"Processing block allocations for block {block[4]}")
         print("\n")
         rewards_check = 0
         voter_check = 0
@@ -100,11 +119,13 @@ class Allocate:
                 reward = int((rate * block_reward) + fee_reward)
                 delegate_check += reward
                 delegate_unpaid[self.config.delegate_fee_address[count]] = reward
+                self.logger.debug(f"Delegate reserve account {self.config.delegate_fee_address[count]} gets {reward/self.atomic} tokens")
             else:
                 rate = int(i) / 100
                 reward = int(rate * block_reward)
                 delegate_check += reward
                 delegate_unpaid[self.config.delegate_fee_address[count]] = reward
+                self.logger.debug(f"Delegate account {self.config.delegate_fee_address[count]} gets {reward/self.atomic} tokens")
         
         # process voter reward
         config_voter_share = self.config.voter_share
@@ -130,6 +151,7 @@ class Allocate:
                     remainder = int(share_weight * standard_voter_share) - single_voter_reward
                     delegate_check += remainder
                     delegate_unpaid[self.config.delegate_fee_address[0]] += remainder
+                    self.logger.debug(f"Voter {k} has custom share rate {db_share}%, remainder {remainder/self.atomic} goes to delegate")
             else:
                 single_voter_reward = 0
            
@@ -154,6 +176,8 @@ class Allocate:
         Delegate Reward: {delegate_check / self.atomic}
         Voter + Delegate Rewards: {(rewards_check + delegate_check) / self.atomic}
         Total Block Rewards: {total_reward / self.atomic}""")
+
+        self.logger.info(f"Block {block[4]} processed: {voter_check} voters, {rewards_check/self.atomic} voter rewards, {delegate_check/self.atomic} delegate rewards")
         
         # store delegate/voter rewards and mark block as processed mark block as processed
         self.sql.open_connection()
