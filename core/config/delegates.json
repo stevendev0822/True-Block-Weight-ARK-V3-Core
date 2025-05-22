@@ -90,7 +90,56 @@
                 "passphrase": "passphrase2",
                 "secondphrase": null,
                 "delegate_fee": [
-                    20
+                    10
+                ],
+                "delegate_fee_address": [
+                    "addr1"
+                ]
+            },
+            "exchange": {
+                "exchange": false,
+                "convert_from": [],
+                "convert_address": [],
+                "convert_to": [],
+                "address_to": [],
+                "network_to": [],
+                "provider": []
+            },
+            "other": {
+                "custom": false,
+                "manual_pay": false,
+                "update_share": false
+            },
+            "donate": {
+                "donate": false,
+                "donate_address": "",
+                "donate_percent": 0
+            }
+        },        
+        {
+            "name": "delegate3",
+            "static": {
+                "atomic": 100000000,
+                "network": "ark_devnet",
+                "start_block": 0
+            },
+            "delegate": {
+                "message": "Thank you for voting delegate3",
+                "voter_share": 90,
+                "voter_cap": 0,
+                "voter_min": 0,
+                "whitelist": false,
+                "whitelist_address": [],
+                "blacklist": false,
+                "blacklist_address": []
+            },
+            "payment": {
+                "interval": 211,
+                "multi": true,
+                "passphrase": "passphrase3",
+                "secondphrase": null,
+                "delegate_fee": [
+                    10
                 ],
                 "delegate_fee_address": [
                     "addr1"
