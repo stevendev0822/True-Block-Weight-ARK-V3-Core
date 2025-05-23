@@ -1,19 +1,97 @@
 import sqlite3
 from datetime import datetime
-from pathlib import Path
 import os
+import logging
+
 
 class Sql:
-    def __init__(self, delegate_name = None):
-        self.home = str(Path.home())
+    def __init__(self, delegate_name=None):
+        # Get the project root directory (assuming the script is in core/utility)
+        self.project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
         self.delegate_name = delegate_name
-
+        
+        # Set up logging
+        self.logger = logging.getLogger(f'sql_{delegate_name}' if delegate_name else 'sql')
+        
+        # Set up database path based on delegate name
         if delegate_name:
-            data_dir = f"{self.home}/True-Block-Weight-ARK-V3-Core/data/{delegate_name}"
+            data_dir = os.path.join(self.project_root, "pay_database", delegate_name)
             os.makedirs(data_dir, exist_ok=True)
-            self.data_path = f"{data_dir}/tbw.db"
+            self.data_path = os.path.join(data_dir, "tbw.db")
         else:
-            self.data_path = f"{self.home}/True-Block-Weight-ARK-V3-Core/core/data/tbw.db"
+            data_dir = os.path.join(self.project_root, "core", "pay_database")
+            os.makedirs(data_dir, exist_ok=True)
+            self.data_path = os.path.join(data_dir, "tbw.db")
+            
+        self.logger.info(f"Using SQLite database at {self.data_path}")
+        
+        # Connect to database
+        self.connection = sqlite3.connect(self.data_path)
+        self.cursor = self.connection.cursor()
+        
+        # Initialize database tables
+        self.initialize_database()
+        
+    def initialize_database(self):
+        """
+        Initialize the SQLite database with required tables for TBW
+        """
+        self.logger.info("Ensuring required database tables exist")
+        
+        # Staging table for payments
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS staging (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            address TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            delegate TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            processed_at TEXT
+        )
+        ''')
+        
+        # Blocks table to track processed blocks
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS blocks (
+            id TEXT PRIMARY KEY,
+            height INTEGER NOT NULL,
+            timestamp INTEGER NOT NULL,
+            reward INTEGER NOT NULL,
+            fee INTEGER NOT NULL,
+            delegate TEXT NOT NULL,
+            processed_at TEXT
+        )
+        ''')
+        
+        # Voters table to track voter information
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS voters (
+            address TEXT NOT NULL,
+            publickey TEXT,
+            balance INTEGER,
+            status TEXT,
+            delegate TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            PRIMARY KEY (address, delegate)
+        )
+        ''')
+        
+        # Transactions table to track payments
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            id TEXT PRIMARY KEY,
+            address TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            fee INTEGER NOT NULL,
+            timestamp INTEGER NOT NULL,
+            delegate TEXT NOT NULL
+        )
+        ''')
+        
+        # Commit changes
+        self.connection.commit()
+        self.logger.debug("Database tables initialized successfully")
+
         
     def open_connection(self):
         self.connection = sqlite3.connect(self.data_path)
