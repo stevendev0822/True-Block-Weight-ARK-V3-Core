@@ -13,7 +13,7 @@ from utility.utility import Utility
 
 def setup_logging(delegate_name):
     """Set up logging for the delegate"""
-    log_dir = Path.home() / "core3-tbw" / "logs"
+    log_dir = Path.home() / "True-Block-Weight-ARK-V3-Core" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     
     log_file = log_dir / f"exchange_test_{delegate_name}.log"

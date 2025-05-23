@@ -1,4 +1,4 @@
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 from pathlib import Path
 import os
 
@@ -7,10 +7,26 @@ class Network:
     def __init__(self, network):
         self.home = str(Path.home())
         self.network = network
-        env_path = self.home + "/True-Block-Weight-ARK-V3-Core/core/network/" + self.network
-
-        config = SafeConfigParser(os.environ)
+        
+        # Get the directory of the current file
+        current_dir = os.path.dirname(os.path.abspath(__file__))  # network directory
+        
+        # Construct the path to the network file
+        env_path = os.path.join(current_dir, self.network)
+        
+        # Print debug information
+        print(f"Loading network configuration from: {env_path}")
+        
+        # Check if the file exists
+        if not os.path.exists(env_path):
+            raise FileNotFoundError(f"Network configuration file not found: {env_path}")
+        
+        config = ConfigParser()
         config.read(env_path)
+        
+        # Print sections for debugging
+        print(f"Available sections in config: {config.sections()}")
+        
         self.load_network(config)
 
     def load_network(self, c):

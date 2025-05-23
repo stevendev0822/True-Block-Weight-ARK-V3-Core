@@ -139,4 +139,4 @@ dist
 #pycache
 *.pyc
 __pycache__
-
+.venv
