@@ -4,7 +4,7 @@ A robust and configurable True Block Weight (TBW) calculation and payment distri
 
 ## Overview
 
-This tool allows delegates to automatically calculate and distribute rewards to voters based on their voting weight, with extensive configuration options for customization. **A key feature is support for multiple delegates within a single LXC server**, making it ideal for project owners managing multiple delegates.
+This tool allows delegates to automatically calculate and distribute rewards to voters based on their voting weight, with extensive configuration options for customization. **A key feature is support for multiple delegates within a single LXC server**, making it ideal for delegate teams or individuals managing multiple delegates.
 
 ## Key Features
 
@@ -52,8 +52,6 @@ python -m venv .venv
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure your delegate settings
-cp core/config/delegates.example.json core/config/delegates.json
 # Edit delegates.json with your configuration
 ```
 
@@ -108,79 +106,123 @@ pm2 start apps.json
 
 ## Configuration
 
-After cloning the repository, create and modify the configuration file at `core/config/delegates.json`. The main sections to configure are:
+After cloning the repository, create and modify the configuration file at `core/config/delegates.json`. The file uses a JSON structure with an array of delegate configurations.
 
-- `[static]` - Network and database settings
-- `[delegate]` - Delegate information and voter sharing rules
-- `[payment]` - Payment intervals and distribution details
-- `[exchange]` - (Optional) Cryptocurrency exchange settings
-- `[other]` - Custom settings and manual operations
-- `[donate]` - Optional donation settings
+### Configuration Structure
 
-### Available Configuration Options
+The `delegates.json` file contains an array of delegate objects, each with the following structure:
 
-#### [Static]
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| atomic | 100000000 | Atomic value - do not change |
-| network | ark_devnet | Network identifier (ark_mainnet, persona_mainnet, qredit_mainnet, etc.) |
-| username | username | PostgreSQL database username (usually your OS username) |
-| start_block | 0 | Block height to start calculations from |
+```json
+{
+    "delegates": [
+        {
+            "name": "delegate1",
+            "static": {
+                "atomic": 100000000,
+                "network": "ark_devnet",
+                "start_block": 0
+            },
+            "delegate": {
+                "message": "Thank you for voting delegate1",
+                "voter_share": 90,
+                "voter_cap": 0,
+                "voter_min": 0,
+                "whitelist": false,
+                "whitelist_address": [],
+                "blacklist": false,
+                "blacklist_address": []
+            },
+            "payment": {
+                "interval": 211,
+                "multi": true,
+                "passphrase": "passphrase1",
+                "secondphrase": null,
+                "delegate_fee": [10],
+                "delegate_fee_address": ["addr1"]
+            },
+            "exchange": {
+                "exchange": false,
+                "convert_from": ["ark", "ark"],
+                "convert_address": ["addr1", "addr2"],
+                "convert_to": ["usdc", "xrp"],
+                "address_to": ["usdc_addr1", "xrp_addr2"],
+                "network_to": ["eth", "xrp"],
+                "provider": ["provider", "provider"]
+            },
+            "other": {
+                "custom": false,
+                "manual_pay": false,
+                "update_share": false
+            },
+            "donate": {
+                "donate": false,
+                "donate_address": "addr1",
+                "donate_percent": 0
+            }
+        },
+        // Additional delegate configurations follow the same structure
+    ]
+}
+```
 
-#### [Delegate]
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| delegate | delegate | Your delegate name |
-| message | message | Message to include in vendor field for payments (ARK and forks only) |
-| voter_share | 90 | Percentage to share with voters |
-| vote_cap | 0 | Maximum voting weight to consider for rewards (0 = no cap) |
-| vote_min | 0 | Minimum wallet balance required for reward eligibility |
-| whitelist | N | Enable whitelist mode (Y/N) |
-| whitelist_addr | addr1,addr2,addr3 | Comma-separated list of whitelisted addresses |
-| blacklist | N | Enable blacklist mode (Y/N) |
-| blacklist_addr | addr1,addr2,addr3 | Comma-separated list of blacklisted addresses |
+### Configuration Sections
 
-#### [Payment]
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| interval | 211 | Payment interval in blocks |
-| multi | N | Use multipayments (Y/N) |
-| passphrase | passphrase | Delegate passphrase |
-| secondphrase | None | Second passphrase (if enabled) |
-| delegate_fee | 10 | Percentage for delegate to keep (first entry is reserve account) |
-| delegate_fee_address | addr1 | Addresses for delegate fee distribution |
+Each delegate configuration contains the following sections:
 
-#### [Exchange] (Experimental - ARK network only)
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| exchange | N | Enable exchange functionality (Y/N) |
-| convert_from | ark, ark | Source network for swap |
-| convert_address | addr1,addr2 | Source addresses for swap |
-| convert_to | usdc,xrp | Target cryptocurrencies |
-| address_to | usdc_addr1,xrp_addr2 | Target addresses |
-| network_to | eth,xrp | Target networks |
-| provider | provider,provider | Swap providers ("SimpleSwap" or "ChangeNow") |
+#### Static
+Network and blockchain settings:
+- `atomic`: The atomic unit value (default: 100000000)
+- `network`: Network identifier (e.g., "ark_devnet", "ark_mainnet")
+- `start_block`: Block height to start calculations from
+
+#### Delegate
+Delegate information and voter sharing rules:
+- `message`: Message to include in vendor field for payments
+- `voter_share`: Percentage to share with voters
+- `voter_cap`: Maximum voting weight to consider for rewards (0 = no cap)
+- `voter_min`: Minimum wallet balance required for reward eligibility
+- `whitelist`: Enable/disable whitelist mode (boolean)
+- `whitelist_address`: Array of whitelisted addresses
+- `blacklist`: Enable/disable blacklist mode (boolean)
+- `blacklist_address`: Array of blacklisted addresses
+
+#### Payment
+Payment intervals and distribution details:
+- `interval`: Payment interval in blocks
+- `multi`: Use multipayments (boolean)
+- `passphrase`: Delegate passphrase
+- `secondphrase`: Second passphrase (if enabled)
+- `delegate_fee`: Array of percentages for delegate to keep
+- `delegate_fee_address`: Array of addresses for delegate fee distribution
+
+#### Exchange (Experimental - ARK network only)
+Cryptocurrency exchange settings:
+- `exchange`: Enable/disable exchange functionality (boolean)
+- `convert_from`: Array of source networks for swap
+- `convert_address`: Array of source addresses for swap
+- `convert_to`: Array of target cryptocurrencies
+- `address_to`: Array of target addresses
+- `network_to`: Array of target networks
+- `provider`: Array of swap providers ("SimpleSwap" or "ChangeNow")
 
 **Notes:**
 - Exchange functionality does not work with fixed amount/address processing
 - Swaps are processed through affiliate accounts at SimpleSwap/ChangeNow
 - Use `test_exchange.py` to test your exchange configuration
 
-#### [Other]
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| custom | N | Enable custom share rates for individual voters |
-| manual_pay | N | Enable manual payment runs outside normal intervals |
-| update_share | N | Enable updating voter share rates in database |
+#### Other
+Custom settings and manual operations:
+- `custom`: Enable/disable custom share rates for individual voters (boolean)
+- `manual_pay`: Enable/disable manual payment runs outside normal intervals (boolean)
+- `update_share`: Enable/disable updating voter share rates in database (boolean)
 
-**Note:** Reset these options to "N" after using them
+**Note:** Reset these options to `false` after using them
 
-#### [Donate]
-| Option | Default | Description | 
-| :--- | :---: | :--- |
-| donate | N | Enable donations (Y/N) |
-| donate_address | addr1 | Donation address |
-| donate_percent | 0 | Donation percentage (from reserve account) |
+#### Donate
+Optional donation settings:
+- `donate`: Enable/disable donations (boolean)
+- `donate_address`: Donation address
+- `donate_percent`: Donation percentage (from reserve account)
 
 ## Logging
 
@@ -216,4 +258,4 @@ If you discover a security vulnerability, please open an issue. All security vul
 
 ## License
 
-[MIT](LICENSE) © [stevendev0822](https://github.com/stevendev0822/True-Block-Weight-ARK-V3-Core)
+[MIT](LICENSE) © [stevendev0822](https://github.com/stevendev0822)
