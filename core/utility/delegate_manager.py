@@ -14,7 +14,11 @@ class DelegateManager:
         self.load_delegates()     
         
     def load_delegates(self):
-        delegates_file = f"{self.home}/True-Block-Weight-ARK-V3-Core/core/config/delegates.json"
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        parent_dir = os.path.dirname(current_dir) 
+        project_dir = os.path.dirname(parent_dir)  
+        
+        delegates_file = os.path.join(project_dir, "core", "config", "delegates.json")
         self.logger.info(f"Loading delegates from {delegates_file}")
         
         if os.path.exists(delegates_file):

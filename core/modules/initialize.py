@@ -22,7 +22,7 @@ class Initialize:
         self.logger.info(f"Initializing database for delegate: {config.username}")
         
         # Create delegate-specific data directory if it doesn't exist
-        delegate_data_dir = f"{self.home}/core3-tbw/core/data/{config.username}"
+        delegate_data_dir = f"{self.home}/True-Block-Weight-ARK-V3-Core/core/data/{config.username}"
         os.makedirs(delegate_data_dir, exist_ok=True)
         
         data_path = f"{delegate_data_dir}/tbw.db"
